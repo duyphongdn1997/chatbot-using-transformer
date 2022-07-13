@@ -1,11 +1,7 @@
-import json
-from typing import Dict
-
 import torch
 from torch.utils.data import Dataset
 
 from constants import DEVICE
-
 from criterion.loss import LossWithLS
 from model.transformers.transformers import Transformer
 from optimizer.optimizer import AdamWarmup
@@ -16,15 +12,19 @@ class Trainer:
     def __init__(
             self,
             d_model: int = 512,
-            heads: int = 8,
-            num_layers: int = 6,
+            heads: int = 4,
+            num_layers: int = 3,
             epochs: int = 10,
-            word_map: Dict = {}
+            batch_size: int = 4,
+            word_map=None,
+            dataset: Dataset = None
     ):
         super(Trainer, self).__init__()
 
-        self.train_loader = torch.utils.data.DataLoader(Dataset(),
-                                                        batch_size=100,
+        if word_map is None:
+            word_map = {}
+        self.train_loader = torch.utils.data.DataLoader(dataset,
+                                                        batch_size=batch_size,
                                                         shuffle=True,
                                                         pin_memory=True)
 
@@ -43,12 +43,12 @@ class Trainer:
                                                 optimizer=self.adam_optimizer)
         self.criterion = LossWithLS(len(self.word_map), 0.1)
 
-    def train(self, train_loader, transformer, criterion, epoch):
-        transformer.train()
+    def train(self, epoch):
+        self.transformer.train()
         sum_loss = 0
         count = 0
 
-        for i, (question, reply) in enumerate(train_loader):
+        for i, (question, reply) in enumerate(self.train_loader):
 
             samples = question.shape[0]
 
@@ -64,10 +64,10 @@ class Trainer:
             question_mask, reply_input_mask, reply_target_mask = create_masks(question, reply_input, reply_target)
 
             # Get the transformer outputs
-            out = transformer(question, question_mask, reply_input, reply_input_mask)
+            out = self.transformer(question, question_mask, reply_input, reply_input_mask)
 
             # Compute the loss
-            loss = criterion(out, reply_target, reply_target_mask)
+            loss = self.criterion(out, reply_target, reply_target_mask)
 
             # Backprop
             self.transformer_optimizer.optimizer.zero_grad()
@@ -78,10 +78,11 @@ class Trainer:
             count += samples
 
             if i % 100 == 0:
-                print("Epoch [{}][{}/{}]\tLoss: {:.3f}".format(epoch, i, len(train_loader), sum_loss / count))
+                print("Epoch [{}][{}/{}]\tLoss: {:.3f}".format(epoch, i, len(self.train_loader), sum_loss / count))
 
         for epoch in range(self.epochs):
-            self.train(train_loader, transformer, criterion, epoch)
+            self.train(epoch)
 
-            state = {'epoch': epoch, 'transformer': transformer, 'transformer_optimizer': self.transformer_optimizer}
+            state = {'epoch': epoch, 'transformer': self.transformer,
+                     'transformer_optimizer': self.transformer_optimizer}
             torch.save(state, 'checkpoint_' + str(epoch) + '.pth.tar')

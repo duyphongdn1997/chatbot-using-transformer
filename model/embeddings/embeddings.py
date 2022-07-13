@@ -16,7 +16,7 @@ class Embeddings(nn.Module):
         self.d_model = d_model
         self.dropout = nn.Dropout(0.1)
         self.embed = nn.Embedding(vocab_size, d_model)
-        self.pe = self.create_positinal_encoding(max_len, self.d_model)
+        self.pe = self.create_positional_encoding(max_len, self.d_model)
         self.dropout = nn.Dropout(0.1)
 
     @staticmethod

@@ -1,7 +1,7 @@
 import json
 from collections import Counter
 
-from constants import CORPUS_MOVIE_CONV, MAX_LEN, CORPUS_MOVIE_LINES
+from constants import CORPUS_MOVIE_CONV, MAX_LEN, CORPUS_MOVIE_LINES, PAIRS_ENCODED, WORDMAP_CORPUS
 
 
 def remove_punc(string):
@@ -14,10 +14,10 @@ def remove_punc(string):
 
 
 def preprocessing():
-    with open(CORPUS_MOVIE_CONV, 'r') as c:
+    with open(CORPUS_MOVIE_CONV, 'r', encoding='iso-8859-1') as c:
         conv = c.readlines()
 
-    with open(CORPUS_MOVIE_LINES, 'r') as f:
+    with open(CORPUS_MOVIE_LINES, 'r', encoding='iso-8859-1') as f:
         lines = f.readlines()
 
     lines_dic = {}
@@ -55,7 +55,7 @@ def preprocessing():
 
     print("Total words are: {}".format(len(word_map)))
 
-    with open('data/WORDMAP_corpus.json', 'w') as j:
+    with open(WORDMAP_CORPUS, 'w', encoding='iso-8859-1') as j:
         json.dump(word_map, j)
 
     pairs_encoded = []
@@ -64,7 +64,7 @@ def preprocessing():
         ans = encode_reply(pair[1], word_map)
         pairs_encoded.append([qus, ans])
 
-    with open('data/pairs_encoded.json', 'w') as p:
+    with open(PAIRS_ENCODED, 'w', encoding='iso-8859-1') as p:
         json.dump(pairs_encoded, p)
 
 
