@@ -1,3 +1,5 @@
+from typing import Dict
+
 import torch.nn.functional as F
 from torch import nn
 
@@ -8,7 +10,12 @@ from model.encoder.encoder import EncoderLayer
 
 class Transformer(nn.Module):
 
-    def __init__(self, d_model, heads, num_layers, word_map):
+    def __init__(self,
+                 d_model: int = 512,
+                 heads: int = 8,
+                 num_layers: int = 3,
+                 word_map: Dict = None
+                 ):
         super(Transformer, self).__init__()
 
         self.d_model = d_model

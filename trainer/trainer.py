@@ -1,4 +1,5 @@
 import json
+from typing import Dict
 
 import torch
 from torch.utils.data import Dataset
@@ -18,6 +19,7 @@ class Trainer:
             heads: int = 8,
             num_layers: int = 6,
             epochs: int = 10,
+            word_map: Dict = {}
     ):
         super(Trainer, self).__init__()
 
@@ -31,9 +33,7 @@ class Trainer:
         self.num_layers = num_layers
         self.device = DEVICE
         self.epochs = epochs
-
-        with open('WORDMAP_corpus.json', 'r') as j:
-            self.word_map = json.load(j)
+        self.word_map = word_map
 
         self.transformer = Transformer(d_model=self.d_model, heads=self.heads, num_layers=self.num_layers,
                                        word_map=self.word_map)

@@ -55,7 +55,7 @@ def preprocessing():
 
     print("Total words are: {}".format(len(word_map)))
 
-    with open('WORDMAP_corpus.json', 'w') as j:
+    with open('data/WORDMAP_corpus.json', 'w') as j:
         json.dump(word_map, j)
 
     pairs_encoded = []
@@ -64,7 +64,7 @@ def preprocessing():
         ans = encode_reply(pair[1], word_map)
         pairs_encoded.append([qus, ans])
 
-    with open('pairs_encoded.json', 'w') as p:
+    with open('data/pairs_encoded.json', 'w') as p:
         json.dump(pairs_encoded, p)
 
 
